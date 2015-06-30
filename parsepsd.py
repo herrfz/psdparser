@@ -2,17 +2,16 @@ import sys
 import struct
 import binascii
 
-psd = struct.Struct('< B I Q H')
+LINE_LENGTH = 2066 # see windows sniffer sw help
 
-first_timestamp_us = 0
-last_timestamp_us = 0
+psd = struct.Struct('< B I Q H')
 
 print('{0}\t{1:>10s}\t{2}'.format('number', 'timestamp', 'packet'))
 
 with open(sys.argv[1], 'rb') as fp:
     while True:
-        data = fp.read(2066)
-        if len(data) == 2066:
+        data = fp.read(LINE_LENGTH)
+        if len(data) == LINE_LENGTH:
             (_, packet_number, raw_timestamp, packet_length) = psd.unpack(data[0:15])
             packet = data[15:(15 + packet_length)]
 
@@ -23,5 +22,5 @@ with open(sys.argv[1], 'rb') as fp:
 
         else:
             if len(data):
-                print('Short read: %d\n' % len(data))
+                print('Short read: {}'.format(len(data)))
             break
